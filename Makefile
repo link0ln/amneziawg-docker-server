@@ -30,14 +30,14 @@ build:
 	docker compose build
 
 start:
-	docker compose up -d
+	docker compose up -d --force-recreate --no-deps
 	@echo "Server starting! Use 'make logs' to watch startup"
 
 stop:
 	docker compose down
 
 restart:
-	docker compose restart
+	docker compose up -d --force-recreate --no-deps
 	@echo "Server restarted!"
 
 logs:
@@ -60,8 +60,8 @@ add-client:
 	fi
 	@./scripts/add-client.sh "$(NAME)"
 	@echo ""
-	@echo "Client added! Don't forget to restart:"
-	@echo "  make restart"
+	@echo "Client added! Restarting server..."
+    docker compose up -d --force-recreate --no-deps
 
 remove-client:
 	@if [ -z "$(NAME)" ]; then \
@@ -70,8 +70,8 @@ remove-client:
 	fi
 	@./scripts/remove-client.sh "$(NAME)"
 	@echo ""
-	@echo "Client removed! Don't forget to restart:"
-	@echo "  make restart"
+	@echo "Client removed! Restarting server..."
+    docker compose up -d --force-recreate --no-deps
 
 clean:
 	@echo "WARNING: This will remove ALL configs including server keys!"
