@@ -206,28 +206,27 @@ def main():
             match = re.search(rf'^{param}\s*=\s*(\d+)', server_conf, re.MULTILINE)
             obf_params[param] = match.group(1) if match else '0'
 
-        # Create client config (AmneziaWG format - no spaces around =)
+        # Create client config (AmneziaWG format)
         client_config = f"""[Interface]
-PrivateKey={client_private}
-Address={client_ip}/32
-DNS={dns}
-MTU=1280
-Jc={obf_params['Jc']}
-Jmin={obf_params['Jmin']}
-Jmax={obf_params['Jmax']}
-S1={obf_params['S1']}
-S2={obf_params['S2']}
-H1={obf_params['H1']}
-H2={obf_params['H2']}
-H3={obf_params['H3']}
-H4={obf_params['H4']}
+PrivateKey = {client_private}
+Address = {client_ip}/32
+DNS = {dns}
+Jc = {obf_params['Jc']}
+Jmin = {obf_params['Jmin']}
+Jmax = {obf_params['Jmax']}
+S1 = {obf_params['S1']}
+S2 = {obf_params['S2']}
+H1 = {obf_params['H1']}
+H2 = {obf_params['H2']}
+H3 = {obf_params['H3']}
+H4 = {obf_params['H4']}
 
 [Peer]
-PublicKey={server_public}
-PresharedKey={preshared}
-Endpoint={server_ip}:{listen_port}
-AllowedIPs=0.0.0.0/0,::/0
-PersistentKeepalive=25
+PublicKey = {server_public}
+PresharedKey = {preshared}
+Endpoint = {server_ip}:{listen_port}
+AllowedIPs = 0.0.0.0/0, ::/0
+PersistentKeepalive = 25
 """
 
         with open(f"{client_dir}/{client_name}.conf", 'w') as f:
