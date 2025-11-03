@@ -83,7 +83,7 @@ show-qr:
 	fi
 	@echo "=== QR Code for client: $(NAME) ==="
 	@echo ""
-	@docker exec amneziawg-server python3 -c 'import qrcode; import sys; qr = qrcode.QRCode(version=1, box_size=1, border=1); qr.add_data(sys.stdin.read()); qr.make(fit=True); qr.print_ascii(invert=True)' < ./config/clients/$(NAME)/$(NAME).conf
+	@docker exec -i amneziawg-server python3 -c 'import qrcode; import sys; data = sys.stdin.read(); qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=1, border=2); qr.add_data(data); qr.make(fit=True); qr.print_ascii(invert=True)' < ./config/clients/$(NAME)/$(NAME).conf
 	@echo ""
 	@echo "Scan this QR code with AmneziaWG mobile app"
 	@echo ""
