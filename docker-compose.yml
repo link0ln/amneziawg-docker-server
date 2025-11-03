@@ -17,14 +17,14 @@ services:
     environment:
       # Server network settings (EDIT THESE!)
       - SERVER_IP=33.33.33.33             # Your server's public IP
-      - LISTEN_PORT=900                   # UDP port for WireGuard
+      - LISTEN_PORT=12235                 # UDP port for WireGuard
       - VPN_NETWORK=10.201.0.0/24         # VPN subnet
       - EXT_INTERFACE=eth0                # External network interface
 
       # AmneziaWG obfuscation parameters
       - AWG_JC=4                          # Junk packets count (1-128)
-      - AWG_JMIN=50                       # Min junk packet size
-      - AWG_JMAX=1000                     # Max junk packet size
+      - AWG_JMIN=40                       # Min junk packet size
+      - AWG_JMAX=70                       # Max junk packet size
       - AWG_S1=0                          # Handshake init garbage
       - AWG_S2=0                          # Handshake response garbage
       - AWG_H1=1                          # Header param 1

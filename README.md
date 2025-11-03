@@ -62,8 +62,9 @@ Send this file to your client!
 └── scripts/               # Python scripts for reliability
     ├── entrypoint.py      # Auto-init logic
     ├── add-client.py      # Add client
+    ├── remove-client.py   # Remove client
     ├── list-clients.py    # List clients
-    └── remove-client.py   # Remove client
+    └── show-qr.py         # Show QR code for mobile
 ```
 
 ## Configuration
@@ -120,6 +121,7 @@ make status            # Show status and peers
 make clients                    # List all clients
 make add-client NAME=laptop     # Add client
 make remove-client NAME=laptop  # Remove client
+make show-qr NAME=laptop        # Show QR code for mobile
 
 # Maintenance
 make clean             # Remove all configs (DANGEROUS!)
@@ -138,11 +140,22 @@ This will:
 1. Generate client keys (validated to 44 chars, passed via stdin)
 2. Assign IP automatically (10.8.0.2, 10.8.0.3, etc.)
 3. Copy obfuscation params from server
-4. Create `config/clients/mylaptop/mylaptop.conf`
-5. Add peer to server config
-6. Automatically restart server to apply changes
+4. Set MTU to 1280 for better compatibility
+5. Create `config/clients/mylaptop/mylaptop.conf`
+6. Add peer to server config
+7. Automatically restart server to apply changes
 
 ### Get Client Config
+
+**Option 1: Show QR Code (for mobile)**
+
+```bash
+make show-qr NAME=mylaptop
+```
+
+Scan the QR code with your phone's camera using AmneziaWG mobile app.
+
+**Option 2: Get config file (for desktop)**
 
 ```bash
 # View config
@@ -343,6 +356,21 @@ environment:
   - DNS=8.8.8.8  # Google
 ```
 
+### MTU Settings
+
+Client configs are automatically generated with `MTU = 1280` for better compatibility with various networks and to avoid fragmentation issues with AmneziaWG's obfuscation overhead.
+
+If you experience connectivity issues, you can adjust MTU in client configs:
+```ini
+# Lower MTU for problematic networks
+MTU = 1200
+
+# Or higher for fast networks without fragmentation
+MTU = 1420
+```
+
+**Note**: Server MTU is managed automatically by the kernel.
+
 ### IPv6 Support
 
 **In `docker-compose.yml`:**
@@ -396,6 +424,21 @@ tar xzf config-backup.tar.gz
 make build && make start
 ```
 
+## QR Codes for Mobile Clients
+
+The server includes QR code generation for easy mobile setup:
+
+```bash
+# Show QR code in terminal
+make show-qr NAME=mylaptop
+```
+
+The script automatically uses the best available method:
+1. **qrencode** (best quality, pre-installed in Docker)
+2. **Python qrcode** (fallback, also pre-installed)
+
+Simply scan the QR code with AmneziaWG mobile app to import the configuration.
+
 ## Security Notes
 
 1. **Keep `config/` secure** - Contains private keys
@@ -403,6 +446,7 @@ make build && make start
 3. **Use strong obfuscation** in censored regions
 4. **Regular updates**: `git pull && make build && make restart`
 5. **Firewall**: Only open necessary ports
+6. **Key validation** - All keys are validated to be exactly 44 characters
 
 ## Requirements
 

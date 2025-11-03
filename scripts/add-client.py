@@ -119,13 +119,57 @@ def main():
         # Get server public key
         if os.path.exists(server_keys):
             with open(server_keys, 'r') as f:
-                for line in f:
-                    if line.startswith('PUBLIC_KEY='):
-                        server_public = line.split('=', 1)[1].strip()
-                        break
-                else:
-                    print("ERROR: PUBLIC_KEY not found in server.keys")
+                keys_content = f.read()
+
+            # Parse PUBLIC_KEY line
+            for line in keys_content.split('\n'):
+                line = line.strip()
+                if line.startswith('PUBLIC_KEY='):
+                    server_public = line.split('=', 1)[1].strip()
+                    break
+            else:
+                print("ERROR: PUBLIC_KEY not found in server.keys")
+                sys.exit(1)
+
+            # Debug: check what we got
+            if len(server_public) != 44:
+                print(f"WARNING: server.keys contains invalid public key!")
+                print(f"  Expected length: 44")
+                print(f"  Actual length: {len(server_public)}")
+                print(f"  Key value: '{server_public}'")
+                print()
+                print("Attempting to regenerate from private key...")
+
+                # Try to regenerate from private key in config
+                private_match = re.search(r'PrivateKey\s*=\s*(\S+)', server_conf)
+                if not private_match:
+                    print("ERROR: Cannot find server private key in config")
                     sys.exit(1)
+
+                server_private = private_match.group(1).strip()
+                server_public = run_cmd_with_input(
+                    ['docker', 'exec', '-i', 'amneziawg-server', 'awg', 'pubkey'],
+                    stdin_data=server_private
+                )
+
+                if len(server_public) != 44:
+                    print(f"ERROR: Even regenerated key is invalid: {len(server_public)} chars")
+                    sys.exit(1)
+
+                print(f"✓ Regenerated valid key: {len(server_public)} chars")
+
+                # Update server.keys file
+                with open(server_keys, 'r') as f:
+                    keys_lines = f.readlines()
+
+                with open(server_keys, 'w') as f:
+                    for line in keys_lines:
+                        if line.strip().startswith('PUBLIC_KEY='):
+                            f.write(f"PUBLIC_KEY={server_public}\n")
+                        else:
+                            f.write(line)
+
+                print("✓ Updated server.keys with correct key")
         else:
             # Fallback: derive from private key in config
             private_match = re.search(r'PrivateKey\s*=\s*(\S+)', server_conf)
@@ -167,6 +211,7 @@ def main():
 PrivateKey = {client_private}
 Address = {client_ip}/32
 DNS = {dns}
+MTU = 1280
 
 # AmneziaWG obfuscation parameters (must match server!)
 Jc = {obf_params['Jc']}

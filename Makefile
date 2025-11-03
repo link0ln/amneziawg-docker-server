@@ -1,4 +1,4 @@
-.PHONY: help build start stop restart logs status clients add-client remove-client clean
+.PHONY: help build start stop restart logs status clients add-client remove-client show-qr clean
 
 help:
 	@echo "AmneziaWG Server Management"
@@ -18,6 +18,7 @@ help:
 	@echo "  make clients           - List all clients"
 	@echo "  make add-client NAME=  - Add new client"
 	@echo "  make remove-client NAME= - Remove client"
+	@echo "  make show-qr NAME=     - Show QR code for client"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  make clean             - Remove all configs (DANGEROUS)"
@@ -70,6 +71,13 @@ remove-client:
 	@python3 ./scripts/remove-client.py "$(NAME)"
 	@echo "Restarting server..."
 	@docker compose up -d --force-recreate --no-deps
+
+show-qr:
+	@if [ -z "$(NAME)" ]; then \
+		echo "ERROR: NAME parameter required. Usage: make show-qr NAME=myclient"; \
+		exit 1; \
+	fi
+	@python3 ./scripts/show-qr.py "$(NAME)"
 
 clean:
 	@echo "WARNING: This will remove ALL configs including server keys!"
