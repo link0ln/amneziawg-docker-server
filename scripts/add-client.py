@@ -207,10 +207,12 @@ def main():
             obf_params[param] = match.group(1) if match else '0'
 
         # Create client config (AmneziaWG format)
+        # MTU=1280 is important for mobile networks!
         client_config = f"""[Interface]
 PrivateKey = {client_private}
 Address = {client_ip}/32
 DNS = {dns}
+MTU = 1280
 Jc = {obf_params['Jc']}
 Jmin = {obf_params['Jmin']}
 Jmax = {obf_params['Jmax']}

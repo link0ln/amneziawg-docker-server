@@ -187,6 +187,10 @@ DNS = {dns}
         run_cmd("modprobe -q tun || true", check=False)
         run_cmd("modprobe -q wireguard || true", check=False)
 
+    # Add MSS clamping for mobile networks (fixes MTU issues)
+    log("Configuring MSS clamping for mobile network compatibility...")
+    run_cmd("iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu", check=False)
+
     # Start AmneziaWG interface
     log(f"Starting interface {interface}...")
     stdout, rc = run_cmd(f"awg-quick up {config_file}")
